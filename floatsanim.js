@@ -50,23 +50,24 @@
             };
             window.requestAnimationFrame(draw);
 
-            function Incrementor(increment, max, min) {
-                var _i = increment, _j = increment, _value = 0, decrease = false;
+            var Incrementor = function(increment, max, min) {
+                var _max = max, _min = min, _increment = increment;
+                var _i = _increment, _j = increment, _value = 0, decrease = false;
                 var _upperLimit = 0, _lowerLimit = 0;
 
                 _updateLimits();
 
-                var _timingFunction = _linear;
+                var _timingFunction = _ease;
 
-                function _linear() {
-                    _i += increment;
+                function _ease() {
+                    _i += _increment;
                     _j = _i * _i;
                     return _i + _j;
                 };
 
                 function _updateLimits() {
-                    var rand = getRandomInt(min, max);
-                    var inverse = max - Math.abs(rand);
+                    var rand = getRandomInt(_min, _max);
+                    var inverse = _max - Math.abs(rand);
 
                     if (rand > inverse) {
                         _upperLimit = rand;
@@ -77,7 +78,7 @@
                         _lowerLimit = rand;
                     }
                     else {
-                        _upperLimit = rand + 1;
+                        _upperLimit = rand + 0.5;
                         _lowerLimit = rand;
                     }
 
@@ -104,21 +105,35 @@
 
                     return _value;
                 };
+
+                this.stop = function() {
+                    _max = 0;
+                    _min = 0;
+                    _increment = 0.1;
+                };
+
+                this.resume = function() {
+                    _max = max;
+                    _min = min;
+                    _increment = increment;
+                }
             };
 
             function getRandomInt(min, max) {
                 return Math.floor(Math.random() * (max - min)) + min;
-            }
+            };
             
             
-       var lis = document.querySelectorAll(".navigation li a");
+                 var lis = document.querySelectorAll(".navigation li a");
 
-            var start3, m1 = 100, n1 = 0, incrementors = [];
-            var inc = 0.0015, maxh = 15, minh = -15, maxl = 30, minl = -30;
+            var start3, incrementors = [];
+            var inc = 0.1, maxh = 15, minh = -15, maxl = 360, minl = -360;
 
             for (var i = 0, len = lis.length; i < len; i++) {
-                incrementors.push({t : new Incrementor(inc, maxh, minh),
-                                   l : new Incrementor(inc, maxl, minl)});
+                var t = new Incrementor(inc, maxh, minh);
+                var l = new Incrementor(inc, maxl, minl);
+
+                incrementors.push({t : t, l : l});
             }
 
             function draw3(timestamp) {
@@ -135,6 +150,18 @@
             };
 
             window.requestAnimationFrame(draw3);
+
+            $(".navigation").on("mouseover", function() {
+                for (var i = 0, len = lis.length; i < len; i++) {
+                    incrementors[i].t.stop();
+                    incrementors[i].l.stop();
+                }
+            }).on("mouseout", function() {
+                for (var i = 0, len = lis.length; i < len; i++) {
+                    incrementors[i].t.resume();
+                    incrementors[i].l.resume();
+                }
+            });
             
 /*-----------------------------------------------------------------------------------------------------*/
 
