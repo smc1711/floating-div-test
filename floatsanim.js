@@ -135,3 +135,28 @@
             };
 
             window.requestAnimationFrame(draw3);
+            
+/*-----------------------------------------------------------------------------------------------------*/
+
+  var el2 = $(".el2").get()[0];
+
+            var start2;
+            var m = 50, n = -50;
+
+            function draw2(timestamp) {
+
+                if (!start2) start2 = timestamp;
+                var diff = timestamp - start2;
+
+                if (diff > 1000) {
+                    start2 = timestamp;
+
+                    var x = getRandomInt(m, n);
+                    var y = getRandomInt(m, n);
+
+                    el2.style.webkitTransform = "translate(" + x + "px," + y + "px)";
+                    el2.style.transform = "translate(" + x + "px," + y + "px)";
+                }
+                window.requestAnimationFrame(draw2);
+            };
+            window.requestAnimationFrame(draw2);
