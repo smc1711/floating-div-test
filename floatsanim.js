@@ -29,15 +29,39 @@
                 };
             }());
          
-         function Incrementor(increment, max, min) {
-                var _i = increment, _value = 0, flag = true;
-                var _upperLimit = max, _lowerLimit = min;
+            var increment = 0.0015;
+            var t = 1, l = 1;
+
+            var to = new Incrementor(increment, 50, -50);
+            var lo = new Incrementor(increment, 50, -50);
+
+            var start;
+
+            function draw(timestamp) {
+
+                t = to.getIncrement();
+                l = lo.getIncrement();
+
+                el.style.top = t + "px";
+                el.style.left = l + "px";
+
+                window.requestAnimationFrame(draw);
+
+            };
+            window.requestAnimationFrame(draw);
+
+            function Incrementor(increment, max, min) {
+                var _i = increment, _j = increment, _value = 0, decrease = false;
+                var _upperLimit = 0, _lowerLimit = 0;
+
+                _updateLimits();
 
                 var _timingFunction = _linear;
 
                 function _linear() {
                     _i += increment;
-                    return _i;
+                    _j = _i * _i;
+                    return _i + _j;
                 };
 
                 function _updateLimits() {
@@ -61,21 +85,21 @@
                 };
 
                 this.getIncrement = function() {
-                    if (_value >= _upperLimit) {
-                        flag = false;
+                    if (_value >= _upperLimit && decrease == false) {
+                        decrease = true;
                         _updateLimits();
                     }
 
-                    if (_value <= _lowerLimit) {
-                        flag = true;
+                    if (_value <= _lowerLimit && decrease) {
+                        decrease = false;
                         _updateLimits();
                     }
 
-                    if (flag) {
-                        _value += _timingFunction();
+                    if (decrease) {
+                        _value -= _timingFunction();
                     }
                     else {
-                        _value -= _timingFunction();
+                        _value += _timingFunction();
                     }
 
                     return _value;
@@ -87,20 +111,27 @@
             }
             
             
-              var to = new Incrementor(increment, 200, 0);
+       var lis = document.querySelectorAll(".navigation li a");
 
-            function draw(timestamp) {
+            var start3, m1 = 100, n1 = 0, incrementors = [];
+            var inc = 0.0015, maxh = 15, minh = -15, maxl = 30, minl = -30;
 
-                //                 calcTop();
-                //                 calcLeft();
-                
-                t = to.getIncrement();
+            for (var i = 0, len = lis.length; i < len; i++) {
+                incrementors.push({t : new Incrementor(inc, maxh, minh),
+                                   l : new Incrementor(inc, maxl, minl)});
+            }
 
-                el.style.top = t + "px";
-                //                                 el.style.left = l + "px";
+            function draw3(timestamp) {
 
-                window.requestAnimationFrame(draw);
+                for (var i = 0, len = lis.length; i < len; i++) {
+                    var t = incrementors[i].t.getIncrement();
+                    var l = incrementors[i].l.getIncrement();
 
+                    lis[i].style.top = t + "px";
+                    lis[i].style.left = l + "px";
+                }
+
+                window.requestAnimationFrame(draw3);
             };
-            var startTime = Date.now();
-            window.requestAnimationFrame(draw);
+
+            window.requestAnimationFrame(draw3);
